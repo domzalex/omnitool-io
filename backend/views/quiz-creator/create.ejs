@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0 maximum-scale=1.0">
+        <link rel="stylesheet" href="/static/css/quiz-creator/style.css">
+        <title>Create A Quiz</title>
+    </head>
+    <body>
+        <%- include('./nav'); -%>
+
+        <div id="main-modal">
+            <div id="modal-content" style="transform: translate(-50%, 0%); transition: all 0.5s ease">
+                <span id="close">&times;</span>
+                <div id="quiz-req">
+                    <h3 style="margin-bottom: 0.5em;">Please make sure your quiz follows these guidelines:</h3>
+                    <ol style="list-style-position: inside;">
+                        <li style="margin: 0.2em 0em;">Quiz must have <b>at least one</b> question.</li>
+                        <li style="margin: 0.2em 0em;">Each question must have <b>more than one</b> answer.</li>
+                        <li style="margin: 0.2em 0em;">Each question must have a title.</li>
+                        <li style="margin: 0.2em 0em;">Each answer must not be left empty.</li>
+                        <li style="margin: 0.2em 0em 0em 0em;">Each question must have a correct answer selected.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="quiz-container">
+            <div id="quiz-header">
+                <input id="quiz-name" type="text" placeholder="Enter your quiz name...">
+                <div class="buttons">
+                    <button id="add-question">Add Question</button>
+                    <button id="save-quiz">Save Quiz</button>
+                </div>
+            </div>
+            <ul id="questions">
+                
+            </ul>
+        </div>
+
+        <%- include('./theme'); -%>
+        <script src="/static/js/quiz-creator/app.js"></script>
+    </body>
+</html>

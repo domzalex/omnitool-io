@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/static/css/quiz-creator/style.css">
+        <title><%= quizData.name %></title>
+    </head>
+    <body>
+        <header>
+            <h2>Quiz Creator</h2>
+            <nav>
+                <a href="/">Home</a>
+                <div class="spanner"></div>
+                <a href="/create">Create</a>
+                <!-- <div class="spanner"></div>
+                <a href="/">My Quizzes</a> -->
+            </nav>
+        </header>
+
+        <div id="main-modal">
+            <div id="modal-content" style="transform: translate(-50%, 0%); transition: all 0.5s ease">
+                <span class="close">&times;</span>
+                <div class="quiz-req">
+                    <p id="quiz-modal-header" style="font-size: 1.5em; padding-right: 1em;">Please make sure you answer <b>each</b> question before submitting your answers.</p>
+                    <p id="score" style="margin-top: 1em; font-size: 1.5em; display: none;"></p>
+                </div>
+            </div>
+        </div>
+    
+        <div id="quiz-header">
+            <h2 id="quiz-name-taker"><%= quizData.name %></h1>
+        </div>
+        
+        <div class="quiz-container">
+            
+            <div id="quiz-sub-container">
+                <ul id="quiz-answers">
+    
+                </ul>
+                <button id="quiz-submit" type="submit">Submit Answers</button>
+            </div>
+        </div>
+
+        <script>
+            const params = new URLSearchParams(window.location.search)
+            const q = `<%- JSON.stringify(quizData) %>`
+            const quiz = JSON.parse(q)
+            console.log(quiz)
+            let quizNameHeading = document.getElementById('quiz-name-taker')
+            const quizContainer = document.querySelector('.quiz-container')
+            const questionList = document.querySelector('#quiz-answers')
+            const submitButton = document.getElementById('quiz-submit')
+            let modalHeader = document.querySelector('#quiz-modal-header')
+            let modalScore = document.querySelector('#score')
+            let answersChosen = []
+
+            // document.title = quiz.name
+            // quizNameHeading.innerHTML = quiz.name
+
+            var modal = document.getElementById("main-modal");
+            var modalContent = document.getElementById("modal-content");
+
+            // Get the <span> element that closes the modal
+            var span = document.getElementsByClassName("close")[0];
+
+            // When the user clicks on <span> (x), close the modal
+            span.onclick = function() {
+            modal.style.opacity = "0";
+            modal.style.pointerEvents = 'none'
+            modalContent.style.transform = "translate(-50%, 0%)"
+            setTimeout(() => {
+                modal.style.display = 'none'
+            }, 500)
+            }
+
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.opacity = "0";
+                modal.style.pointerEvents = 'none'
+                modalContent.style.transform = "translate(-50%, 0%)"
+                setTimeout(() => {
+                    modal.style.display = 'none'
+                }, 500)
+            }
+            }
+
+            quiz.questions.forEach(question => {
+                let idx = quiz.questions.indexOf(question)
+                const qbox = document.createElement('li')
+                qbox.className = 'ans'
+                const questionName = document.createElement('h2')
+                const answerList = document.createElement('ol')
+                questionName.innerHTML = question
+                qbox.appendChild(questionName)
+                quiz.answers[idx].forEach(ans => {
+                    const aDiv = document.createElement('li')
+                    aDiv.setAttribute('type', 'none')
+                    const a = document.createElement('div')
+                    a.className = 'checkbox'
+                    a.setAttribute('checked', 'false')
+                    a.checked = false
+                    a.addEventListener('click', (e) => {
+                        a.checked = !a.checked
+                        let num = e.target.parentElement.parentElement
+                        answerToggle(a, num)
+                        
+                        // setCorrectAnswer(index, parseInt(e.target.parentElement.dataset.number), a.checked)
+                    })
+                    // a.setAttribute('type', 'radio')
+                    // a.setAttribute('name', `answer${quiz.questions.indexOf(question)}`)
+                    // a.setAttribute('id', `${question.answers.indexOf(ans)}`)
+                    const aName = document.createElement('label')
+                    aName.setAttribute('for', `${quiz.answers[idx].indexOf(ans)}`)
+                    aName.innerHTML = ans
+                    aDiv.appendChild(a)
+                    aDiv.appendChild(aName)
+                    answerList.appendChild(aDiv)
+                    
+                })
+                qbox.appendChild(answerList)
+                questionList.appendChild(qbox)
+
+            })
+
+            function answerToggle(answerCheckbox, answersDiv) {
+                let allAnswers = quizContainer.children
+                Array.from(answersDiv.children).forEach(ans => {
+                    ans.children[0].checked = false
+                })
+                answerCheckbox.checked = true
+                Array.from(answersDiv.children).forEach(ans => {
+                    if (ans.children[0].checked) {
+                        ans.children[0].classList.add('checkbox-active')
+                        ans.children[0].classList.remove('checkbox')
+                    } else {
+                        ans.children[0].classList.add('checkbox')
+                        ans.children[0].classList.remove('checkbox-active')
+                    }
+                })
+            }
+
+            function checkAnswers() {
+                answersChosen = []
+                const quizDiv = Array.from(questionList.children)
+                quizDiv.forEach(a => {
+                    Array.from(a.children).slice(1).forEach(ans => {
+                        Array.from(ans.children).forEach(as => {
+                            if (as.children[0].checked) {
+                                answersChosen.push(parseInt(as.children[1].getAttribute('for')) + 1)
+                            }
+                        })
+                    }) 
+                })
+                if (answersChosen.length < quiz.answers.length) {
+                    modalHeader.innerHTML = 'Please make sure you answer <b>each</b> question before submitting your answers.'
+                    modal.style.display = 'block'
+                    setTimeout(() => {
+                        modal.style.opacity = "1";
+                        modal.style.pointerEvents = 'all'
+                        modalContent.style.transform = "translate(-50%, 50%)"
+                    }, 10)
+                } else {
+                    let score
+                    let amtCrct = 0
+                    for (let i = 0; i < answersChosen.length; i++) {
+                        if (answersChosen[i] === quiz.answers.indexOf(quiz.answers[i]) + 1) {
+                            amtCrct++
+                        }
+                    }
+                    score = Math.round(parseFloat(amtCrct / quiz.answers.length) * 100)
+                    let x = 0
+                    quizDiv.forEach(a => {
+                        Array.from(a.children).slice(1).forEach(ans => {
+                            Array.from(ans.children).forEach(as => {
+                                if (as.children[0].checked) {
+                                    if ((parseInt(as.children[1].getAttribute('for'))) == quiz.answers.indexOf(quiz.answers[x])) {
+                                        as.children[0].style.backgroundColor = '#AAAE8E'
+                                    } else {
+                                        as.children[0].style.backgroundColor = '#d9635b'
+                                        document.documentElement.style.setProperty('--idx', "-1")
+                                        Array.from(ans.children).forEach(asd => {
+                                            if (parseInt(asd.children[1].getAttribute('for')) == quiz.answers.indexOf(quiz.answers[x])) {
+                                                asd.children[0].style.backgroundColor = '#AAAE8E'
+                                            }
+                                        })
+                                    }
+                                }
+                            })
+                        })
+                        x++
+                        console.log(x)
+                    })
+                    if (score < 70) {
+                        modalHeader.innerHTML = `Uh oh, you <b><i>failed...</i></b>`
+                    } else {
+                        modalHeader.innerHTML = `Congratulations, you <b><i>passed!</i></b>`
+                    }
+                    modalScore.style.display = 'block'
+                    modalScore.innerHTML = `Score: ${score} / 100%`
+                    modal.style.display = 'block'
+                    setTimeout(() => {
+                        modal.style.opacity = "1";
+                        modal.style.pointerEvents = 'all'
+                        modalContent.style.transform = "translate(-50%, 50%)"
+                    }, 10)
+                }
+            }
+
+            submitButton.addEventListener('click', checkAnswers)
+        </script>
+    </body>
+</html>
