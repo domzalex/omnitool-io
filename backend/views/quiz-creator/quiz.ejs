@@ -7,16 +7,7 @@
         <title><%= quizData.name %></title>
     </head>
     <body>
-        <header>
-            <h2>Quiz Creator</h2>
-            <nav>
-                <a href="/">Home</a>
-                <div class="spanner"></div>
-                <a href="/create">Create</a>
-                <!-- <div class="spanner"></div>
-                <a href="/">My Quizzes</a> -->
-            </nav>
-        </header>
+        <%- include('./nav'); -%>
 
         <div id="main-modal">
             <div id="modal-content" style="transform: translate(-50%, 0%); transition: all 0.5s ease">
@@ -34,14 +25,12 @@
         
         <div class="quiz-container">
             
-            <div id="quiz-sub-container">
-                <ul id="quiz-answers">
-    
-                </ul>
-                <button id="quiz-submit" type="submit">Submit Answers</button>
-            </div>
-        </div>
+            <ul id="quiz-answers">
 
+            </ul>
+            <button id="quiz-submit" type="submit">Submit Answers</button>
+        </div>
+        
         <script>
             const params = new URLSearchParams(window.location.search)
             const q = `<%- JSON.stringify(quizData) %>`

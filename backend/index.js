@@ -12,7 +12,7 @@ const port = 3000
 app.use(bodyParser.json())
 app.use('/static', express.static('static'))
 app.use(express.urlencoded({ extended: true }))
-app.set('view engine', 'ejs');
+app.set('view engine', 'ejs')
 
 const mongoURI = process.env.DB_CONNECT
 
@@ -52,19 +52,8 @@ app.post('/quiz-creator/postQuiz', async (req, res) => {
         const newQuiz = new Quizzes(req.body)
         await newQuiz.save();
 
-        // ejs.renderFile(__dirname + '/views/quiz.ejs', { quizData: newQuiz }, function (err, str) {
-        //     if (err) {
-        //         console.error('Error rendering EJS template:', err);
-        //         res.status(500).json({ error: 'Internal Server Error' });
-        //     } else {
-        //         res.status(201).send(str);
-        //     }
-        // })
-
         res.status(201).json({ 
             id: newQuiz._id, 
-            // name: newQuiz.name,
-            // quizData: newQuiz,
             message: 'Data successfully saved to the database.' });
     } catch (error) {
         console.error('Error:', error)
@@ -72,8 +61,10 @@ app.post('/quiz-creator/postQuiz', async (req, res) => {
     }
 })
 app.get('/quiz-creator', (req, res) => {
-    // res.render('home.ejs')
-    res.redirect('/quiz-creator/create')
+    Quizzes.find({})
+    .then(quizzes => {
+        res.render('quiz-creator/home.ejs', { allQuizzes: quizzes })
+    })
 });
 app.get('/quiz-creator/create', (req, res) => {
     res.render('quiz-creator/create.ejs')

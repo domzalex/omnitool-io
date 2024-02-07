@@ -9,5 +9,9 @@
     <body>
         <%- include('./nav'); -%>
         
+        <% allQuizzes.forEach(quiz => { %>
+            <a href="/quiz-creator/quiz/<%= quiz._id %>"><%= quiz.name %></a>
+        <% }) %>
+
     </body>
 </html>
